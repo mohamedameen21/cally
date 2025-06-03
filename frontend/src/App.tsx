@@ -1,14 +1,21 @@
-import { Button } from "./components/ui/button";
+import React from "react";
+import { MainLayout } from "@/components/layout";
+import {
+  HeroSection,
+  FeaturesSection,
+  HowItWorksSection,
+  CtaSection,
+} from "@/components/sections";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline text-center">Hello world!</h1>
-      <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
-    </>
+    <MainLayout>
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <CtaSection />
+    </MainLayout>
   );
-}
+};
 
 export default App;
