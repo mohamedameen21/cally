@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Menu, User, Book, Trees, Sunset, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -25,6 +25,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 interface MenuItem {
   title: string;
@@ -81,6 +82,7 @@ export function MainNav({
     },
     { title: "About", url: "/about" },
     { title: "Contact", url: "/contact" },
+    { title: "Dashboard", url: "/dashboard" },
   ],
 }: MainNavProps) {
   const { user, logout } = useAuth();

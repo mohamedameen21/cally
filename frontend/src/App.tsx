@@ -15,6 +15,9 @@ import {
 } from "@/pages/auth";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import DashboardPage from "@/pages/dashboard";
+import DashboardAvailabilityPage from "@/pages/dashboard/availability";
+
 
 const HomePage: React.FC = () => {
   return (
@@ -37,19 +40,20 @@ const App: React.FC = () => {
         <Route path="/signup" element={<RegisterPage />} /> {/* Added redirect for /signup */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        {/* Protected routes example */}
+        {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <MainLayout>
-                <div className="container mx-auto py-8">
-                  <h1 className="text-2xl font-bold">Dashboard (Protected)</h1>
-                  <p className="mt-4">
-                    This is a protected route that requires authentication.
-                  </p>
-                </div>
-              </MainLayout>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/availability"
+          element={
+            <ProtectedRoute>
+              <DashboardAvailabilityPage />
             </ProtectedRoute>
           }
         />
