@@ -1,8 +1,10 @@
 <?php
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +19,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    $user = Auth::user();
+
+    return ApiResponse::success(['user' => [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+    ]], 'User Details');
 });
 
 Route::post('/login', [AuthController::class, 'login']);
