@@ -84,7 +84,7 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
     try {
       updateState({ loading: true });
       const data = await availabilityService.getAvailabilities();
-      const formattedAvailabilities = formatApiDataForState(data, dayNames);
+      const formattedAvailabilities = formatApiDataForState(data?.availabilities, dayNames);
       updateState({ availabilities: formattedAvailabilities });
     } catch (error) {
       console.error("Failed to fetch availabilities:", error);

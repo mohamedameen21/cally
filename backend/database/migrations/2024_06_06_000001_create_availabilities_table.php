@@ -21,9 +21,6 @@ return new class extends Migration
             $table->time('end_time');
             $table->boolean('is_available')->default(true);
             $table->timestamps();
-            
-            // Add unique constraint to prevent duplicate entries for the same day
-            $table->unique(['user_id', 'day_of_week']);
         });
     }
 

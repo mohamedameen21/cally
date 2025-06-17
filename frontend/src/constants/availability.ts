@@ -15,10 +15,10 @@ export const dayNames: DayName[] = [
 ];
 
 // Default time slot is 9:00-17:00
-export const defaultTimeSlot: TimeSlot = { start_time: "09:00", end_time: "17:00" };
+export const defaultTimeSlot: TimeSlot = { start_time: "09:00:00", end_time: "17:00:00" };
 
 // Additional time slots for the + button
 export const additionalTimeSlots: TimeSlot[] = [
-  { start_time: "17:00", end_time: "23:00" },
-  { start_time: "23:00", end_time: "23:59" },
+  { start_time: "17:00:00", end_time: "23:00:00" },
+  { start_time: "23:00:00", end_time: "23:59:00" },
 ];

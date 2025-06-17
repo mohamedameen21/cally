@@ -43,20 +43,30 @@ export function formatStateDataForApi(availabilities: DayAvailability[]): ApiAva
       return [
         {
           day_of_week: day.day_of_week,
-          start_time: "00:00",
-          end_time: "00:00",
+          start_time: "00:00:00",
+          end_time: "00:00:00",
           is_available: false,
         },
       ];
     }
 
     // Otherwise, create a record for each time slot
-    return day.time_slots.map((slot) => ({
-      day_of_week: day.day_of_week,
-      start_time: slot.start_time,
-      end_time: slot.end_time,
-      is_available: true,
-    }));
+    return day.time_slots.map((slot) => {
+      // Ensure time format includes seconds (HH:MM:SS)
+      const start_time = slot.start_time.includes(':') && slot.start_time.split(':').length === 2 
+        ? `${slot.start_time}:00` 
+        : slot.start_time;
+      const end_time = slot.end_time.includes(':') && slot.end_time.split(':').length === 2 
+        ? `${slot.end_time}:00` 
+        : slot.end_time;
+
+      return {
+        day_of_week: day.day_of_week,
+        start_time,
+        end_time,
+        is_available: true,
+      };
+    });
   });
 }
 

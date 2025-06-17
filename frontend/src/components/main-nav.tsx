@@ -49,36 +49,6 @@ export function MainNav({
   },
   menu = [
     { title: "Home", url: "/" },
-    {
-      title: "Services",
-      url: "#",
-      items: [
-        {
-          title: "Scheduling",
-          description: "Automated appointment scheduling and reminders",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "/services/scheduling",
-        },
-        {
-          title: "Messaging",
-          description: "Secure client communication and file sharing",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "/services/messaging",
-        },
-        {
-          title: "Payments",
-          description: "Integrated payment processing and invoicing",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "/services/payments",
-        },
-        {
-          title: "Analytics",
-          description: "Business insights and performance tracking",
-          icon: <Zap className="size-5 shrink-0" />,
-          url: "/services/analytics",
-        },
-      ],
-    },
     { title: "About", url: "/about" },
     { title: "Contact", url: "/contact" },
     { title: "Dashboard", url: "/dashboard" },

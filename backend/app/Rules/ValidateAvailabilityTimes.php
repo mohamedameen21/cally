@@ -6,12 +6,6 @@ use Illuminate\Validation\Validator;
 
 class ValidateAvailabilityTimes
 {
-    /**
-     * Validate that all time slots have valid start and end times.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
-     */
     public function __invoke(Validator $validator)
     {
         $data = $validator->getData();
@@ -37,6 +31,6 @@ class ValidateAvailabilityTimes
     protected function timeToMinutes(string $time): int
     {
         list($hours, $minutes) = explode(':', $time);
-        return ($hours * 60) + $minutes;
+        return ($hours * 60) + (int)$minutes;
     }
 }

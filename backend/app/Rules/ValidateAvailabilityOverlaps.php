@@ -80,6 +80,6 @@ class ValidateAvailabilityOverlaps
     protected function timeToMinutes(string $time): int
     {
         list($hours, $minutes) = explode(':', $time);
-        return ($hours * 60) + $minutes;
+        return ($hours * 60) + (int)$minutes;
     }
 }

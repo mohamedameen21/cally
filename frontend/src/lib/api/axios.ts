@@ -35,7 +35,6 @@ axiosInstance.interceptors.response.use(
       "success" in response.data
     ) {
       if (response.data.success) {
-        console.log({ ...response, data: response.data.data });
         return { ...response, data: response.data.data };
       } else {
         return Promise.reject({

@@ -2,53 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\DayEnum;
+use App\Helpers\ApiResponse;
 use App\Http\Requests\AvailabilityRequest;
-use App\Models\Availability;
+use App\Http\Resources\AvailabilityResource;
+use App\Http\Service\AvailabilityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AvailabilityController extends Controller
 {
-    /**
-     * Get the authenticated user's availabilities.
-     */
+    protected $availabilityService;
+
+    public function __construct(AvailabilityService $availabilityService)
+    {
+        $this->availabilityService = $availabilityService;
+    }
+
+
     public function index(): JsonResponse
     {
         $availabilities = Auth::user()->availabilities;
-        
-        return response()->json([
-            'success' => true,
-            'data' => $availabilities,
+
+        return ApiResponse::success([
+            'availabilities' => AvailabilityResource::collection($availabilities),
         ]);
     }
 
-    /**
-     * Store or update the user's availabilities.
-     */
     public function store(AvailabilityRequest $request): JsonResponse
     {
-        // Validation is handled by the AvailabilityRequest class
+        $availabilityDTOs = $request->toDTO();
+        Log::info('availabilities', $availabilityDTOs);
 
         $user = Auth::user();
-        
-        // Delete existing availabilities
-        $user->availabilities()->delete();
-        
-        // Create new availabilities
-        foreach ($request->availabilities as $availability) {
-            $user->availabilities()->create([
-                'day_of_week' => $availability['day_of_week'],
-                'start_time' => $availability['start_time'],
-                'end_time' => $availability['end_time'],
-                'is_available' => $availability['is_available'] ?? true,
-            ]);
-        }
 
-        return response()->json([
-            'success' => true,
-            'data' => $user->availabilities()->get(),
-            'message' => 'Availabilities updated successfully',
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $availabilityCollection = $this->availabilityService->updateAvailabilities($user, $availabilityDTOs);
+            DB::commit();
+
+            return ApiResponse::success([
+                'availabilities' => $availabilityCollection,
+            ], 'Availabilities updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ApiResponse::errorWithLog('unable to update the availabilities', $e, 500);
+        }
     }
 }
