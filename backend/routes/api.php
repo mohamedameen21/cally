@@ -18,14 +18,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $user = Auth::user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        $user = Auth::user();
 
-    return ApiResponse::success(['user' => [
-        'id' => $user->id,
-        'name' => $user->name,
-        'email' => $user->email,
-    ]], 'User Details');
+        return ApiResponse::success(['user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]], 'User Details');
+    });
+    
+    // Availability routes
+    Route::get('/availabilities', [App\Http\Controllers\AvailabilityController::class, 'index']);
+    Route::post('/availabilities', [App\Http\Controllers\AvailabilityController::class, 'store']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);

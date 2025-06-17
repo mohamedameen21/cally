@@ -25,7 +25,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
 
 interface MenuItem {
   title: string;
