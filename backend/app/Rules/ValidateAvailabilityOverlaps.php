@@ -6,12 +6,7 @@ use Illuminate\Validation\Validator;
 
 class ValidateAvailabilityOverlaps
 {
-    /**
-     * Validate that time slots don't overlap within the same day.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
-     */
+
     public function __invoke(Validator $validator)
     {
         $data = $validator->getData();
@@ -38,57 +33,50 @@ class ValidateAvailabilityOverlaps
                 $bStart = $this->timeToMinutes($b['start_time']);
                 return $aStart <=> $bStart;
             });
-            
+
             $this->checkOverlapsInDay($slots, $validator);
         }
     }
 
-    /**
-     * Check for overlapping time slots within a day.
-     *
-     * @param  array  $slots
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
-     */
     protected function checkOverlapsInDay(array $slots, Validator $validator): void
     {
-        $count = count($slots);
 
-        for ($i = 0; $i < $count; $i++) {
-            if (!($slots[$i]['is_available'] ?? true)) {
-                continue;
+        // Filter out unavailable slots
+        $availableSlots = array_filter($slots, function($slot) {
+            return $slot['is_available'] ?? true;
+        });
+
+        // Re-index array after filtering
+        $availableSlots = array_values($availableSlots);
+        $availableCount = count($availableSlots);
+
+        if ($availableCount < 2) {
+            return;
+        }
+
+        // Initialize with the first slot's end time
+        $lastEndTime = $this->timeToMinutes($availableSlots[0]['end_time']);
+
+        for ($i = 1; $i < $availableCount; $i++) {
+            $currentStartTime = $this->timeToMinutes($availableSlots[$i]['start_time']);
+
+            // If current slot starts before the last slot ends (and they're not adjacent),
+            // we have an overlap
+            if ($currentStartTime < $lastEndTime && $currentStartTime != $lastEndTime) {
+                $validator->errors()->add(
+                    "availabilities.{$availableSlots[$i]['index']}.start_time",
+                    "This time slot overlaps with another slot on the same day."
+                );
+                return;
             }
 
-            $startTime1 = $this->timeToMinutes($slots[$i]['start_time']);
-            $endTime1 = $this->timeToMinutes($slots[$i]['end_time']);
-
-            for ($j = $i + 1; $j < $count; $j++) {
-                // Skip slots marked as not available
-                if (!($slots[$j]['is_available'] ?? true)) {
-                    continue;
-                }
-
-                $startTime2 = $this->timeToMinutes($slots[$j]['start_time']);
-                $endTime2 = $this->timeToMinutes($slots[$j]['end_time']);
-
-                // Check if slots overlap, but allow adjacent slots (where one ends exactly when another begins)
-                if ($startTime1 < $endTime2 && $startTime2 < $endTime1
-                && !($startTime2 == $endTime1 || $startTime1 == $endTime2)) {
-                    $validator->errors()->add(
-                        "availabilities.{$slots[$j]['index']}.start_time",
-                        "This time slot overlaps with another slot on the same day."
-                    );
-                }
-            }
+            // Update the last end time if the current end time is later
+            $currentEndTime = $this->timeToMinutes($availableSlots[$i]['end_time']);
+            $lastEndTime = max($lastEndTime, $currentEndTime);
         }
     }
 
-    /**
-     * Convert time string to minutes.
-     *
-     * @param  string  $time
-     * @return int
-     */
+
     protected function timeToMinutes(string $time): int
     {
         list($hours, $minutes) = explode(':', $time);
