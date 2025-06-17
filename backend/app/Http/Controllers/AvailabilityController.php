@@ -33,8 +33,6 @@ class AvailabilityController extends Controller
     public function store(AvailabilityRequest $request): JsonResponse
     {
         $availabilityDTOs = $request->toDTO();
-        Log::info('availabilities', $availabilityDTOs);
-
         $user = Auth::user();
 
         try {

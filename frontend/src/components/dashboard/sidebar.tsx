@@ -48,13 +48,8 @@ export const Sidebar: React.FC = () => {
     },
     {
       icon: <Users className="h-4 w-4" />,
-      label: "Clients",
-      href: "/dashboard/clients",
-    },
-    {
-      icon: <Settings className="h-4 w-4" />,
-      label: "Settings",
-      href: "/dashboard/settings",
+      label: "Bookings",
+      href: "/dashboard/bookings",
     },
   ];
 

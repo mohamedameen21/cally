@@ -61,9 +61,7 @@ class AvailabilityRequest extends BaseApiRequest
     public function toDTO()
     {
         $availabilities = [];
-        
-        // Use the request data directly instead of validated data
-        // This ensures we get the sorted data after passedValidation() has run
+
         foreach ($this->input('availabilities') as $availability) {
             $availabilities[] = new AvailabilityDTO(
                 day_of_week: $availability['day_of_week'],
@@ -72,7 +70,7 @@ class AvailabilityRequest extends BaseApiRequest
                 is_available: $availability['is_available'] ?? true
             );
         }
-        
+
         return $availabilities;
     }
 
@@ -80,21 +78,18 @@ class AvailabilityRequest extends BaseApiRequest
     {
         $availabilities = $this->validated('availabilities');
 
-        // Group availabilities by day
         $groupedByDay = [];
         foreach ($availabilities as $availability) {
             $day = $availability['day_of_week'];
             $groupedByDay[$day][] = $availability;
         }
 
-        // Sort time slots within each day by start time
         foreach ($groupedByDay as $day => &$slots) {
             usort($slots, function ($a, $b) {
                 return $this->timeToMinutes($a['start_time']) <=> $this->timeToMinutes($b['start_time']);
             });
         }
 
-        // Flatten the array back
         $sortedAvailabilities = [];
         foreach ($groupedByDay as $daySlots) {
             foreach ($daySlots as $slot) {
@@ -102,9 +97,6 @@ class AvailabilityRequest extends BaseApiRequest
             }
         }
 
-        Log::info('sorted', $sortedAvailabilities);
-
-        // Replace the original availabilities with the sorted ones
         $this->replace(['availabilities' => $sortedAvailabilities]);
     }
 

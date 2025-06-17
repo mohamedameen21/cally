@@ -15,6 +15,7 @@ import {
 } from "@/pages/auth";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { DashboardStats } from "@/components/dashboard";
 import DashboardPage from "@/pages/dashboard";
 import DashboardAvailabilityPage from "@/pages/dashboard/availability";
 
@@ -48,15 +49,13 @@ const App: React.FC = () => {
               <DashboardPage />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/dashboard/availability"
-          element={
-            <ProtectedRoute>
-              <DashboardAvailabilityPage />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route index element={<DashboardStats />} />
+          <Route
+            path="availability"
+            element={<DashboardAvailabilityPage />}
+          />
+        </Route>
       </Routes>
     </AuthProvider>
   );
