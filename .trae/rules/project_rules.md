@@ -444,3 +444,5 @@ Zero magic numbers/strings
 All API responses wrapped in Resources
 
 Transactions for critical DB operations
+
+Hey I am using Laravel 12 React 19 and Tailwind 4
