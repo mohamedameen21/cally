@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Calendar, Clock, User, Mail, MessageSquare, Loader2 } from 'lucide-react';
 import { bookingService, type CreateBookingData } from '@/services/booking';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
+import { formatSelectedDate } from '@/utils/availabilityFormatters';
 
 interface BookingFormProps {
   hostUsername: string;
@@ -82,32 +83,22 @@ const BookingForm: React.FC<BookingFormProps> = ({
       toast.success('Booking request sent successfully!');
       onSuccess();
       
-    } catch (error: any) {    
-      if (error.response?.data?.message) {
-        if (error.response.data.message.includes('conflict') || 
-            error.response.data.message.includes('already booked')) {
-          setErrors({ general: 'This time slot is no longer available. Please select a different time.' });
+    } catch (error: any) { 
+      if (error.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+        const errorMessages = Object.values(validationErrors).flat();
+        
+        if (errorMessages.length > 0) {
+          setErrors({ general: errorMessages[0] });
+          toast.error(errorMessages[0]);
         } else {
-          setErrors({ general: error.response.data.message });
+          setErrors({ general: 'Validation failed. Please check your input.' });
+          toast.error('Validation failed');
         }
-      } else {
-        setErrors({ general: 'Failed to create booking. Please try again.' });
-      }
-      
-      toast.error('Failed to create booking');
+      } 
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const formatSelectedDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   return (

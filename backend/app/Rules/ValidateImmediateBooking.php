@@ -6,21 +6,20 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class BookingTimeAfterNow implements ValidationRule
+class ValidateImmediateBooking implements ValidationRule
 {
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         try {
-            // Parse the booking time as UTC (as it comes from the frontend)
             $bookingTime = Carbon::parse($value, 'UTC');
-            
+
             // Get current time in UTC
             $nowUTC = Carbon::now('UTC');
-            
+
             // Add a 15-minute buffer to current time
             $minimumBookingTime = $nowUTC->addMinutes(15);
-            
+
             if ($bookingTime->lessThanOrEqualTo($minimumBookingTime)) {
                 $fail('The booking time must be at least 15 minutes in the future.');
             }

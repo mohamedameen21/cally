@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiResponse;
-use App\Http\Requests\BookingRequest;
-use App\Http\Service\BookingService;
-use App\Models\Booking;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Booking;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Service\BookingService;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\BookingRequest;
+use Illuminate\Support\Facades\Cache;
 
 class BookingController extends Controller
 {
@@ -41,17 +42,23 @@ class BookingController extends Controller
     {
         $guestUser = Auth::user();
         $bookingDTO = $request->toDTO();
+        $booking = null;
 
         try {
-            DB::beginTransaction();
-
-            $booking = $this->bookingService->createBooking($bookingDTO, $guestUser);
-
-            DB::commit();
+            $booking = Cache::lock("booking:$bookingDTO->booking_time", 5)->get(function () use ($bookingDTO, $guestUser) {
+                DB::beginTransaction();
+                $booking = $this->bookingService->createBooking($bookingDTO, $guestUser);
+                DB::commit();
+                return $booking;
+            });
 
             return ApiResponse::success([
                 'booking' => $booking->load('hostUser')
             ], 'Booking created successfully!', 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return ApiResponse::validationError($e->errors());
         } catch (\Exception $e) {
             DB::rollBack();
             return ApiResponse::errorWithLog('Failed to create booking', $e, 422);

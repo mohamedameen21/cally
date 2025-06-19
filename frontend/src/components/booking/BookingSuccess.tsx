@@ -90,45 +90,6 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
         </CardContent>
       </Card>
 
-      {/* Next Steps */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="font-semibold mb-4">What happens next?</h3>
-          
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
-                1
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Pending Review</p>
-                <p>Your booking request is currently pending approval from {hostName}.</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
-                2
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Email Confirmation</p>
-                <p>You'll receive an email confirmation once {hostName} approves your booking request.</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
-                3
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Meeting Details</p>
-                <p>The confirmation email will include meeting details and any additional instructions.</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
         <Button

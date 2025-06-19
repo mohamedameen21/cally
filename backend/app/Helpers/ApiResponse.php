@@ -19,7 +19,7 @@ class ApiResponse
     {
         return response()->json([
             'success' => false,
-            'message' => 'Error',
+            'message' => $message,
         ], $statusCode);
     }
 
@@ -34,7 +34,7 @@ class ApiResponse
     {
         return response()->json([
             'success' => false,
-            'message' => 'Validation errors',
+            'message' => 'Validation failed',
             'errors' => $errors,
         ], 422);
     }

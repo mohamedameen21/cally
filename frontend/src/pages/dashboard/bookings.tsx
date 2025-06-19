@@ -5,7 +5,7 @@ import { Calendar, Clock, User, Mail, MessageSquare, Video } from "lucide-react"
 import { bookingService, type Booking, type BookingFilters } from "@/services/booking";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, parseISO } from "date-fns";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 const DashboardBookingsPage: React.FC = () => {
   const { user } = useAuth();

@@ -14,6 +14,9 @@ class BookingService
     public function createBooking(BookingDTO $bookingDTO, User $guestUser): Booking
     {
         $bookingTime = Carbon::parse($bookingDTO->booking_time);
+        
+        // Find the host user by username
+        $hostUser = User::where('username', $bookingDTO->username)->firstOrFail();
 
         // Create the booking
         return Booking::create([

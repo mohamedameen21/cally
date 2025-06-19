@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { bookingService, type DashboardStats as StatsType } from "@/services/booking";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 /**
  * DashboardStats component displays booking and appointment statistics

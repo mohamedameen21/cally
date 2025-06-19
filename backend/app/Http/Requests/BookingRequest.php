@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use App\DTOs\BookingDTO;
-use App\Rules\BookingTimeAfterNow;
-use Carbon\Carbon;
-use Illuminate\Validation\Rule;
+use App\Rules\ValidateImmediateBooking;
+use Illuminate\Support\Facades\Auth;
 
 class BookingRequest extends BaseApiRequest
 {
@@ -16,9 +15,24 @@ class BookingRequest extends BaseApiRequest
 
     public function rules(): array
     {
+        $user = Auth::user();
+        
         return [
-            'username' => 'required|exists:users,username',
-            'booking_time' => ['required', 'date', new BookingTimeAfterNow()],
+            'username' => [
+                'required',
+                'exists:users,username',
+                function ($attribute, $value, $fail) use ($user) {
+                    // Prevent booking a slot for yourself
+                    if ($user->username === $value) {
+                        $fail('You cannot book a slot for yourself.');
+                    }
+                }
+            ],
+            'booking_time' => [
+                'required', 
+                'date', 
+                new ValidateImmediateBooking(),
+            ],
             'notes' => 'nullable|string|max:1000',
         ];
     }

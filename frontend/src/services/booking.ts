@@ -50,9 +50,6 @@ interface BookingFilters {
 }
 
 export const bookingService = {
-  /**
-   * Get all bookings for the authenticated user (as host)
-   */
   getMyBookings: async (filters?: BookingFilters): Promise<Booking[]> => {
     const params = new URLSearchParams();
     if (filters?.start_date) params.append("start_date", filters.start_date);
@@ -69,41 +66,13 @@ export const bookingService = {
   },
 
   /**
-   * Get bookings for a specific user (public endpoint)
-   */
-  getUserBookings: async (
-    userId: number,
-    filters?: BookingFilters
-  ): Promise<Booking[]> => {
-    const params = new URLSearchParams();
-    if (filters?.start_date) params.append("start_date", filters.start_date);
-    if (filters?.end_date) params.append("end_date", filters.end_date);
-    if (filters?.status) params.append("status", filters.status);
-
-    const queryString = params.toString();
-    const url = queryString
-      ? `/public/users/${userId}/bookings?${queryString}`
-      : `/public/users/${userId}/bookings`;
-
-    const response = await axiosInstance.get(url);
-    return response.data.data.bookings;
-  },
-
-  /**
    * Create a new booking (public endpoint)
    */
   createBooking: async (bookingData: CreateBookingData): Promise<Booking> => {
     const response = await axiosInstance.post("/bookings", bookingData);
-    return response.data.data.booking;
+    return response.data.booking;
   },
 
-  /**
-   * Get a specific booking by ID (only for host)
-   */
-  getBooking: async (bookingId: number): Promise<Booking> => {
-    const response = await axiosInstance.get(`/bookings/${bookingId}`);
-    return response.data.data.booking;
-  },
 };
 
 export type {
