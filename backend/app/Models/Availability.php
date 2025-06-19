@@ -11,11 +11,6 @@ class Availability extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'day_of_week',
@@ -24,11 +19,7 @@ class Availability extends Model
         'is_available',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+
     protected function casts(): array
     {
         return [
@@ -37,9 +28,7 @@ class Availability extends Model
         ];
     }
 
-    /**
-     * Get the user that owns the availability.
-     */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

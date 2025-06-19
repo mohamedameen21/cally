@@ -4,7 +4,24 @@
 
 // Helper function to convert time string to minutes for easier comparison
 const timeToMinutes = (time: string): number => {
-  const [hours, minutes] = time.split(":").map(Number);
+  if (!time || typeof time !== 'string') {
+    console.error('timeToMinutes received invalid input:', time);
+    return 0;
+  }
+  
+  const parts = time.split(":");
+  if (parts.length < 2) {
+    console.error('timeToMinutes received invalid time format:', time);
+    return 0;
+  }
+  
+  const [hours, minutes] = parts.map(Number);
+  
+  if (isNaN(hours) || isNaN(minutes)) {
+    console.error('timeToMinutes received non-numeric time parts:', time);
+    return 0;
+  }
+  
   return hours * 60 + minutes;
 };
 
@@ -44,9 +61,24 @@ const doTimeSlotsOverlap = (
   );
 };
 
+// Format time string for display (convert from 24h to 12h format)
+const formatTimeForDisplay = (timeString: string): string => {
+  // Handle cases where timeString might include seconds
+  const timeParts = timeString.split(':');
+  const hours = parseInt(timeParts[0], 10);
+  const minutes = timeParts[1];
+  
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+  
+  return `${displayHours}:${minutes} ${period}`;
+};
+
 export const timeUtils = {
   timeToMinutes,
   validateTimeOrder,
   sortTimeSlots,
   doTimeSlotsOverlap
 };
+
+export { formatTimeForDisplay };

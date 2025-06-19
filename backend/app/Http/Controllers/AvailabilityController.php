@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Http\Requests\AvailabilityRequest;
+use App\Http\Requests\MonthAvailabilityRequest;
 use App\Http\Resources\AvailabilityResource;
 use App\Http\Service\AvailabilityService;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,5 +51,22 @@ class AvailabilityController extends Controller
 
             return ApiResponse::errorWithLog('unable to update the availabilities', $e, 500);
         }
+    }
+
+    public function getByUsernameAndMonth(MonthAvailabilityRequest $request): JsonResponse
+    {
+        $monthAvailabilityDTO = $request->toDTO();
+        
+        $user = User::where('username', $monthAvailabilityDTO->username)->first();
+        
+        $monthData = $this->availabilityService->getMonthAvailability($user, $monthAvailabilityDTO->year, $monthAvailabilityDTO->month);
+
+        return ApiResponse::success([
+            'user' => [
+                'name' => $user->name,
+                'username' => $user->username,
+            ],
+            'available_time_slots' => $monthData,
+        ]);
     }
 }

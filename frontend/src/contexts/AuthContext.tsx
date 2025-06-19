@@ -4,6 +4,7 @@ import { authService } from '@/services/auth';
 interface User {
   id: number;
   name: string;
+  username: string;
   email: string;
 }
 
@@ -13,7 +14,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
+  register: (name: string, username: string, email: string, password: string, password_confirmation: string) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (email: string, password: string, password_confirmation: string, token: string) => Promise<void>;
@@ -73,16 +74,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string, password_confirmation: string) => {
+  const register = async (
+    name: string,
+    username: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await authService.register({ name, email, password, password_confirmation });
+      const response = await authService.register({ name, username, email, password, password_confirmation });
       localStorage.setItem('token', response.token);
       setToken(response.token);
       setUser(response.user);
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to register');
+      setError(error.response?.data?.message || 'Registration failed');
       throw error;
     } finally {
       setLoading(false);

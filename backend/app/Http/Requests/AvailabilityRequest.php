@@ -37,7 +37,7 @@ class AvailabilityRequest extends BaseApiRequest
             ],
             'availabilities.*.is_available' => 'boolean',
         ];
-    }
+    }   
 
 
     public function after(): array

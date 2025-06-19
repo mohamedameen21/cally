@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username',
+        'timezone',
     ];
 
     /**
@@ -47,12 +49,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
-    /**
-     * Get the availabilities for the user.
-     */
-    public function availabilities(): HasMany
+
+
+    public function availabilities()
     {
         return $this->hasMany(Availability::class);
+    }
+
+    public function hostBookings()
+    {
+        return $this->hasMany(Booking::class, 'host_user_id');
+    }
+
+    public function guestBookings()
+    {
+        return $this->hasMany(Booking::class, 'guest_user_id');
     }
 }

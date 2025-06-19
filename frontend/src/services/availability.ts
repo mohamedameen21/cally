@@ -10,17 +10,12 @@ interface Availability {
 }
 
 export const availabilityService = {
-  /**
-   * Get the user's availabilities
-   */
   getAvailabilities: async (): Promise<Availability[]> => {
     const response = await axiosInstance.get('/availabilities');
     return response.data;
   },
 
-  /**
-   * Update the user's availabilities
-   */
+
   updateAvailabilities: async (availabilities: Availability[]): Promise<Availability[]> => {
     const response = await axiosInstance.post('/availabilities', { availabilities });
     return response.data;

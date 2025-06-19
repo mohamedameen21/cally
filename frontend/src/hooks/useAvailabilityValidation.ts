@@ -14,10 +14,19 @@ export const useAvailabilityValidation = () => {
    * Convert time slots to minutes for easier comparison
    */
   const convertSlotsToMinutes = (slots: TimeSlot[]) => {
-    return slots.map(slot => ({
-      start: timeUtils.timeToMinutes(slot.start_time),
-      end: timeUtils.timeToMinutes(slot.end_time)
-    }));
+    return slots
+      .filter(slot => {
+        // Filter out slots with invalid time values
+        if (!slot.start_time || !slot.end_time) {
+          console.warn('Skipping time slot with missing time values:', slot);
+          return false;
+        }
+        return true;
+      })
+      .map(slot => ({
+        start: timeUtils.timeToMinutes(slot.start_time),
+        end: timeUtils.timeToMinutes(slot.end_time)
+      }));
   };
 
   /**
@@ -26,10 +35,12 @@ export const useAvailabilityValidation = () => {
    */
   const validateTimeOrder = (slot: TimeSlot, dayIndex: number): boolean => {
     if (!timeUtils.validateTimeOrder(slot.start_time, slot.end_time)) {
+      const errorMessage = `End time must be after start time.`;
       setTimeError({
         dayIndex,
-        message: `End time must be after start time.`,
+        message: errorMessage,
       });
+      toast.error(errorMessage);
       return false;
     }
     return true;
@@ -52,10 +63,12 @@ export const useAvailabilityValidation = () => {
 
         // Check if slot a overlaps with slot b
         if (timeUtils.doTimeSlotsOverlap(a, b)) {
+          const errorMessage = `Time slots ${i + 1} and ${j + 1} overlap. Please adjust the times.`;
           setTimeError({
             dayIndex,
-            message: `Time slots ${i + 1} and ${j + 1} overlap. Please adjust the times.`,
+            message: errorMessage,
           });
+          toast.error(errorMessage);
           return true;
         }
       }

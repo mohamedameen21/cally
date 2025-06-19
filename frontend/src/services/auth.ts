@@ -7,6 +7,7 @@ interface LoginCredentials {
 
 interface RegisterData {
   name: string;
+  username: string;
   email: string;
   password: string;
   password_confirmation: string;
@@ -39,6 +40,7 @@ interface AuthResponseData {
 interface User {
   id: number;
   name: string;
+  username: string;
   email: string;
 }
 
@@ -52,7 +54,7 @@ export const authService = {
   },
 
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await axiosInstance.post('/register', data);
+    const response = await axiosInstance.post('/auth/register', data);
     return response.data;
   },
 
@@ -73,6 +75,6 @@ export const authService = {
 
   getCurrentUser: async (): Promise<User> => {
     const response = await axiosInstance.get('/user');
-    return response.data;
+    return response.data?.user;
   },
 };

@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -29,6 +30,10 @@ export const RegisterPage: React.FC = () => {
     // Frontend validation
     const newErrors: Record<string, string> = {};
     if (!name) newErrors.name = 'Name is required';
+    if (!username) newErrors.username = 'Username is required';
+    if (username && !/^[a-zA-Z0-9_-]+$/.test(username)) {
+      newErrors.username = 'Username can only contain letters, numbers, underscores, and hyphens';
+    }
     if (!email) newErrors.email = 'Email is required';
     if (!password) newErrors.password = 'Password is required';
     if (password.length < 8) newErrors.password = 'Password must be at least 8 characters';
@@ -43,7 +48,7 @@ export const RegisterPage: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await register(name, email, password, passwordConfirmation);
+      await register(name, username, email, password, passwordConfirmation);
       navigate('/');
     } catch (error: any) {
       const responseErrors = error.response?.data?.errors;
@@ -95,6 +100,24 @@ export const RegisterPage: React.FC = () => {
                   placeholder="Full Name"
                 />
                 {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-foreground mb-1">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="relative block w-full rounded-md border-0 py-2 px-3 text-foreground bg-background shadow-sm ring-1 ring-inset ring-input placeholder:text-muted-foreground focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm"
+                  placeholder="Username"
+                />
+                {errors.username && <p className="mt-1 text-sm text-destructive">{errors.username}</p>}
               </div>
 
               <div>

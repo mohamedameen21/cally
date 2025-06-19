@@ -18,6 +18,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardStats } from "@/components/dashboard";
 import DashboardPage from "@/pages/dashboard";
 import DashboardAvailabilityPage from "@/pages/dashboard/availability";
+import DashboardBookingsPage from "@/pages/dashboard/bookings";
+import UserAvailabilityPage from "@/pages/public/UserAvailabilityPage";
 
 
 const HomePage: React.FC = () => {
@@ -41,6 +43,12 @@ const App: React.FC = () => {
         <Route path="/signup" element={<RegisterPage />} /> {/* Added redirect for /signup */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        {/* Protected availability route */}
+        <Route path="/u/:username" element={
+          <ProtectedRoute>
+            <UserAvailabilityPage />
+          </ProtectedRoute>
+        } />
         {/* Protected routes */}
         <Route
           path="/dashboard"
@@ -54,6 +62,10 @@ const App: React.FC = () => {
           <Route
             path="availability"
             element={<DashboardAvailabilityPage />}
+          />
+          <Route
+            path="bookings"
+            element={<DashboardBookingsPage />}
           />
         </Route>
       </Routes>

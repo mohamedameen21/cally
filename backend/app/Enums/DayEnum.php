@@ -16,22 +16,13 @@ enum DayEnum: string
     case SATURDAY = 'saturday';
     case SUNDAY = 'sunday';
 
-    /**
-     * Get the human-readable label for the enum value.
-     *
-     * @return string
-     */
+    
     public function getLabel(): string
     {
         return ucfirst($this->value);
     }
 
-    /**
-     * Check if a value is valid.
-     *
-     * @param string $value
-     * @return bool
-     */
+
     public static function isValid(string $value): bool
     {
         return in_array($value, self::getValues());

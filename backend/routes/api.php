@@ -25,14 +25,21 @@ Route::middleware('auth:sanctum')->group(function () {
         return ApiResponse::success(['user' => [
             'id' => $user->id,
             'name' => $user->name,
+            'username' => $user->username,
             'email' => $user->email,
         ]], 'User Details');
     });
-    
+
     // Availability routes
     Route::get('/availabilities', [App\Http\Controllers\AvailabilityController::class, 'index']);
     Route::post('/availabilities', [App\Http\Controllers\AvailabilityController::class, 'store']);
+    
+    // Booking routes (authenticated)
+    Route::apiResource('bookings', App\Http\Controllers\BookingController::class);
 });
+
+// Public routes
+Route::get('/availabilities/month', [App\Http\Controllers\AvailabilityController::class, 'getByUsernameAndMonth']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

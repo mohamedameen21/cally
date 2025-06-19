@@ -9,6 +9,7 @@ import {
   formatStateDataForApi,
   initializeAvailabilities,
 } from "@/utils/availabilityFormatters";
+import toast from "react-hot-toast";
 
 interface UseAvailabilityProps {
   dayNames: DayName[];
@@ -86,8 +87,10 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
       const data = await availabilityService.getAvailabilities();
       const formattedAvailabilities = formatApiDataForState(data?.availabilities, dayNames);
       updateState({ availabilities: formattedAvailabilities });
+      toast.success("Availability loaded successfully!");
     } catch (error) {
       console.error("Failed to fetch availabilities:", error);
+      toast.error("Failed to load availability data. Please try again.");
     } finally {
       updateState({ loading: false });
     }
@@ -103,7 +106,15 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
     field: "start_time" | "end_time",
     value: string
   ) => {
+    // Validate time format
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(value)) {
+      toast.error("Please enter a valid time format (HH:MM)");
+      return;
+    }
+
     const newAvailabilities = [...availabilities];
+    const previousValue = newAvailabilities[dayIndex].time_slots[slotIndex][field];
     newAvailabilities[dayIndex].time_slots[slotIndex][field] = value;
 
     // Update state with new availabilities
@@ -113,23 +124,51 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
     });
 
     // Validate the time change using the validation hook
-    validateTimeChange(
+    const isValid = validateTimeChange(
       dayIndex,
       slotIndex,
       newAvailabilities[dayIndex].time_slots
     );
+
+    // If validation failed, optionally revert the change
+    // (This is handled by the validation hook showing error messages)
   };
 
   const handleToggleAvailability = (dayIndex: number) => {
     const newAvailabilities = [...availabilities];
-    newAvailabilities[dayIndex].is_available =
-      !newAvailabilities[dayIndex].is_available;
+    const wasAvailable = newAvailabilities[dayIndex].is_available;
+    newAvailabilities[dayIndex].is_available = !wasAvailable;
+    
+    // Clear any errors for this day when toggling
+    clearErrorForDay(dayIndex);
+    
     updateState({ availabilities: newAvailabilities });
+    
+    // Provide feedback to user
+    const dayName = dayNames[dayIndex]?.fullName || `Day ${dayIndex + 1}`;
+    if (newAvailabilities[dayIndex].is_available) {
+      toast.success(`${dayName} is now available`);
+    } else {
+      toast.info(`${dayName} is now unavailable`);
+    }
   };
 
   const handleAddTimeSlot = (dayIndex: number) => {
     const newAvailabilities = [...availabilities];
     const currentSlotCount = newAvailabilities[dayIndex].time_slots.length;
+
+    // Check if day is available before adding time slot
+    if (!newAvailabilities[dayIndex].is_available) {
+      toast.error("Please enable availability for this day before adding time slots.");
+      return;
+    }
+
+    // Limit maximum number of time slots per day
+    const maxSlotsPerDay = 5;
+    if (currentSlotCount >= maxSlotsPerDay) {
+      toast.error(`Maximum ${maxSlotsPerDay} time slots allowed per day.`);
+      return;
+    }
 
     // Get the next time slot from additionalTimeSlots based on current count
     const nextTimeSlotIndex =
@@ -147,15 +186,30 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
 
     // Validate the new slot using the validation hook
     const newSlotIndex = newAvailabilities[dayIndex].time_slots.length - 1;
-    validateTimeOrder(
+    const isValidOrder = validateTimeOrder(
       newAvailabilities[dayIndex].time_slots[newSlotIndex],
       dayIndex
     );
-    checkForOverlaps(dayIndex, newAvailabilities[dayIndex].time_slots);
+    const hasOverlaps = checkForOverlaps(dayIndex, newAvailabilities[dayIndex].time_slots);
+
+    // Show success message if no validation errors
+    if (isValidOrder && !hasOverlaps) {
+      const dayName = dayNames[dayIndex]?.fullName || `Day ${dayIndex + 1}`;
+      toast.success(`Time slot added to ${dayName}`);
+    }
   };
 
   const handleRemoveTimeSlot = (dayIndex: number, slotIndex: number) => {
     const newAvailabilities = [...availabilities];
+    const currentSlots = newAvailabilities[dayIndex].time_slots;
+    
+    // Prevent removing the last time slot if day is available
+    if (currentSlots.length === 1 && newAvailabilities[dayIndex].is_available) {
+      toast.error("Cannot remove the last time slot. Disable availability for this day instead.");
+      return;
+    }
+
+    // Remove the time slot
     newAvailabilities[dayIndex].time_slots.splice(slotIndex, 1);
 
     // Ensure at least one time slot exists
@@ -175,23 +229,45 @@ export const useAvailability = ({ dayNames }: UseAvailabilityProps) => {
     if (newAvailabilities[dayIndex].time_slots.length > 1) {
       checkForOverlaps(dayIndex, newAvailabilities[dayIndex].time_slots);
     }
+
+    // Show success message
+    const dayName = dayNames[dayIndex]?.fullName || `Day ${dayIndex + 1}`;
+    toast.success(`Time slot removed from ${dayName}`);
   };
 
   const handleSaveAvailabilities = async () => {
     // Check all days for overlaps before saving
     if (checkAllDaysForOverlaps()) {
-      alert("Please fix overlapping time slots before saving.");
+      toast.error("Please fix overlapping time slots before saving.");
+      return;
+    }
+
+    // Validate that all time slots have proper time order
+    let hasValidationErrors = false;
+    availabilities.forEach((day, dayIndex) => {
+      if (day.is_available) {
+        day.time_slots.forEach((slot) => {
+          if (!timeUtils.validateTimeOrder(slot.start_time, slot.end_time)) {
+            toast.error(`Invalid time order on ${dayNames[dayIndex]?.fullName || `Day ${dayIndex + 1}`}. End time must be after start time.`);
+            hasValidationErrors = true;
+          }
+        });
+      }
+    });
+
+    if (hasValidationErrors) {
       return;
     }
 
     try {
       updateState({ saving: true });
+      toast.loading("Saving availability...", { id: "save-availability" });
       const formattedData = formatStateDataForApi(availabilities);
       await availabilityService.updateAvailabilities(formattedData);
-      alert("Availability updated successfully!");
+      toast.success("Availability updated successfully!", { id: "save-availability" });
     } catch (error) {
       console.error("Failed to save availabilities:", error);
-      alert("Failed to update availability. Please try again.");
+      toast.error("Unable to update availability. Please try again.", { id: "save-availability" });
     } finally {
       updateState({ saving: false });
     }

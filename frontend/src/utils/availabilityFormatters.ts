@@ -18,7 +18,7 @@ export function formatApiDataForState(data: any[], dayNames: DayName[]): DayAvai
     if (dayData.length === 0) {
       return {
         day_of_week: day.id,
-        is_available: day.id !== "saturday" && day.id !== "sunday",
+        is_available: false, // Default to unavailable if no specific data from API
         time_slots: [{ ...defaultTimeSlot }],
       };
     }
@@ -35,10 +35,11 @@ export function formatApiDataForState(data: any[], dayNames: DayName[]): DayAvai
   });
 }
 
-
 export function formatStateDataForApi(availabilities: DayAvailability[]): ApiAvailability[] {
   return availabilities.flatMap((day) => {
-    if (!day.is_available) {
+    const isAvailable = day.is_available;
+      
+    if (!isAvailable) {
       // If day is not available, create one record with is_available=false
       return [
         {
@@ -70,11 +71,10 @@ export function formatStateDataForApi(availabilities: DayAvailability[]): ApiAva
   });
 }
 
-
 export function initializeAvailabilities(dayNames: DayName[]): DayAvailability[] {
   return dayNames.map((day) => ({
     day_of_week: day.id,
-    is_available: day.id !== "saturday" && day.id !== "sunday",
+    is_available: false, // Default all days to unavailable initially
     time_slots: [{ ...defaultTimeSlot }],
   }));
 }
